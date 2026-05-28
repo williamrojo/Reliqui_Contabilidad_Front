@@ -1,22 +1,40 @@
+<script setup>
+import { useRouter } from 'vue-router'
+import { useAuthStore } from 'src/stores/auth-store'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const handleLogout = async () => {
+  await authStore.logout()
+  router.push('/acceso')
+}
+</script>
+
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+  <q-layout view="hHh lpR fFf" class="mesh-background">
+    <q-header class="bg-dark-header shadow-bottom">
+      <q-toolbar class="q-px-lg q-py-sm">
+        <div class="row items-center no-wrap">
+          <q-img
+            src="~assets/ReliquiLogo.png"
+            style="width: 40px; height: 40px"
+            fit="contain"
+            class="q-mr-sm"
+          />
+          <div class="text-h6 text-weight-bold gradient-text" style="letter-spacing: -0.5px">
+            Reliqui Systems
+          </div>
+        </div>
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-space />
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn flat no-caps class="glass-btn text-white" @click="handleLogout">
+          <q-icon name="logout" class="q-mr-sm" size="xs" />
+          Cerrar Sesión
+        </q-btn>
       </q-toolbar>
     </q-header>
-
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
-
-        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -24,58 +42,42 @@
   </q-layout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
-
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-]
-
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+<style scoped>
+/* Fondo oscuro elegante para el header */
+.bg-dark-header {
+  background-color: #0f172a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-</script>
+
+/* Gradiente de Verdes a Azules para que haga juego con tu logo */
+.gradient-text {
+  background: linear-gradient(90deg, #4ade80 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Botón transparente esmerilado */
+.glass-btn {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+.glass-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Fondo Mesh fluido para que el Glassmorphism resalte */
+.mesh-background {
+  background-color: #f0f4f8;
+  background-image:
+    radial-gradient(at 10% 20%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(74, 222, 128, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 10%, rgba(14, 165, 233, 0.1) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+</style>
