@@ -6,10 +6,19 @@ const props = defineProps({
 
 const emit = defineEmits(['select-sucursal'])
 
+// Agregamos las nuevas columnas para los conciliados
 const columnasSucursales = [
   { name: 'nombre', align: 'left', label: 'SUCURSAL', field: 'nombre', sortable: true },
+  { name: 'conciliados', align: 'center', label: 'ÉXITOS', field: 'conciliados', sortable: true },
+  {
+    name: 'monto_conciliado',
+    align: 'right',
+    label: 'MONTO CONCILIADO',
+    field: 'monto_conciliado',
+    sortable: true,
+  },
   { name: 'pendientes', align: 'center', label: 'PENDIENTES', field: 'pendientes', sortable: true },
-  { name: 'monto', align: 'right', label: 'MONTO ESTIMADO', field: 'monto', sortable: true },
+  { name: 'monto', align: 'right', label: 'MONTO PENDIENTE', field: 'monto', sortable: true },
 ]
 
 const onRowClick = (evt, row) => {
@@ -64,20 +73,38 @@ const onRowClick = (evt, row) => {
                   color="orange-9"
                   text-color="white"
                   class="text-weight-bold q-pa-sm shadow-1"
-                  >{{ col.value }}</q-badge
                 >
+                  {{ col.value }}
+                </q-badge>
               </template>
+
+              <template v-else-if="col.name === 'conciliados'">
+                <q-badge
+                  color="positive"
+                  text-color="white"
+                  class="text-weight-bold q-pa-sm shadow-1"
+                >
+                  {{ col.value }}
+                </q-badge>
+              </template>
+
+              <template v-else-if="col.name === 'monto_conciliado'">
+                <span class="text-weight-bold text-positive">{{ col.value }}</span>
+              </template>
+
               <template v-else-if="col.name === 'monto'">
                 <span
                   class="text-weight-bold"
                   :class="props.row.id === selectedId ? 'text-primary' : 'text-grey-9'"
-                  >{{ col.value }}</span
                 >
+                  {{ col.value }}
+                </span>
               </template>
+
               <template v-else>
-                <span :class="{ 'text-weight-bold text-primary': props.row.id === selectedId }">{{
-                  col.value
-                }}</span>
+                <span :class="{ 'text-weight-bold text-primary': props.row.id === selectedId }">
+                  {{ col.value }}
+                </span>
               </template>
             </q-td>
           </q-tr>

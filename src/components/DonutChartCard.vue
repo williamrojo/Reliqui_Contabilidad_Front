@@ -15,6 +15,11 @@ const formatAbbreviation = (num) => {
   return '$' + num.toFixed(0)
 }
 
+// Utilidad para dar formato de moneda completo en el panel inferior
+const formatCurrency = (val) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
+}
+
 const dibujarGrafica = (resumen, rawMontoTotal) => {
   if (!chartRef.value || !resumen) return
   d3.select(chartRef.value).selectAll('*').remove()
@@ -88,7 +93,12 @@ watch(
   () => props.resumen,
   async (newVal) => {
     if (newVal) {
-      const rawMonto = parseFloat(props.montoPendiente) || 0
+      // Priorizamos el dato directo del JSON si viene, si no usamos la prop calculada
+      const rawMonto =
+        newVal.monto_vouchers_pendientes !== undefined
+          ? parseFloat(newVal.monto_vouchers_pendientes)
+          : parseFloat(props.montoPendiente) || 0
+
       await nextTick()
       dibujarGrafica(newVal, rawMonto)
     }
@@ -104,44 +114,75 @@ watch(
     </q-card-section>
 
     <q-card-section
-      class="col q-pa-md column items-center justify-center text-center overflow-hidden"
+      class="col q-pa-sm column items-center justify-center text-center overflow-hidden"
     >
-      <div ref="chartRef" class="q-mb-sm" style="width: 100%; max-width: 200px"></div>
-      <div class="text-h4 text-weight-bolder text-primary q-mt-sm">
+      <div ref="chartRef" class="q-mb-sm" style="width: 100%; max-width: 180px"></div>
+      <div class="text-h5 text-weight-bolder text-primary">
         {{ props.resumen?.total_vouchers || 0 }}
       </div>
-      <div class="text-caption text-grey-8 text-uppercase text-weight-bold">
-        Vouchers Analizados
+      <div class="text-caption text-grey-8 text-uppercase text-weight-bold" style="font-size: 10px">
+        Vouchers Analizados ({{ formatCurrency(props.resumen?.monto_total_vouchers) }})
       </div>
     </q-card-section>
 
-    <q-card-section class="q-pa-md glass-footer">
-      <q-list class="q-py-none">
-        <q-item>
-          <q-item-section avatar
-            ><q-icon name="circle" color="positive" size="xs"
-          /></q-item-section>
-          <q-item-section
-            ><q-item-label class="text-weight-bold text-grey-8"
-              >Exitosos</q-item-label
-            ></q-item-section
-          >
-          <q-item-section side class="text-subtitle1 text-positive text-weight-bold">{{
-            props.resumen?.total_conciliados || 0
-          }}</q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section avatar><q-icon name="circle" color="warning" size="xs" /></q-item-section>
-          <q-item-section
-            ><q-item-label class="text-weight-bold text-grey-8"
-              >Pendientes</q-item-label
-            ></q-item-section
-          >
-          <q-item-section side class="text-subtitle1 text-warning text-weight-bold">{{
-            props.resumen?.total_pendientes || 0
-          }}</q-item-section>
-        </q-item>
-      </q-list>
+    <q-card-section class="q-pa-sm glass-footer">
+      <div class="row text-center q-mb-sm">
+        <div class="col-6" style="border-right: 1px solid rgba(0, 0, 0, 0.1)">
+          <div class="text-caption text-weight-bold text-positive" style="font-size: 10px">
+            CONCILIADOS
+          </div>
+          <div class="text-subtitle2 text-weight-bold text-dark">
+            {{ props.resumen?.total_conciliados || 0 }} VCH
+          </div>
+          <div class="text-caption text-grey-8">
+            {{ formatCurrency(props.resumen?.monto_vouchers_conciliados) }}
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="text-caption text-weight-bold text-warning" style="font-size: 10px">
+            PENDIENTES
+          </div>
+          <div class="text-subtitle2 text-weight-bold text-dark">
+            {{ props.resumen?.total_pendientes || 0 }} VCH
+          </div>
+          <div class="text-caption text-grey-8">
+            {{ formatCurrency(props.resumen?.monto_vouchers_pendientes) }}
+          </div>
+        </div>
+      </div>
+
+      <q-separator class="opacity-50 q-my-xs" />
+
+      <div class="row text-center q-pt-xs">
+        <div
+          class="col-12 text-caption text-weight-bold text-dark-blue q-mb-xs"
+          style="font-size: 10px"
+        >
+          TOTALES ESTADOS DE CUENTA
+        </div>
+        <div class="col-4">
+          <div class="text-caption text-grey-7" style="font-size: 9px; line-height: 1">CARGADO</div>
+          <div class="text-caption text-weight-bold text-dark" style="font-size: 11px">
+            {{ formatCurrency(props.resumen?.banco_total_cargado) }}
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="text-caption text-grey-7" style="font-size: 9px; line-height: 1">
+            CONCILIADO
+          </div>
+          <div class="text-caption text-weight-bold text-positive" style="font-size: 11px">
+            {{ formatCurrency(props.resumen?.banco_total_conciliado) }}
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="text-caption text-grey-7" style="font-size: 9px; line-height: 1">
+            PENDIENTE
+          </div>
+          <div class="text-caption text-weight-bold text-warning" style="font-size: 11px">
+            {{ formatCurrency(props.resumen?.banco_total_pendiente) }}
+          </div>
+        </div>
+      </div>
     </q-card-section>
   </q-card>
 </template>
@@ -165,5 +206,8 @@ watch(
 .glass-footer {
   background: rgba(255, 255, 255, 0.4);
   border-top: 1px solid rgba(255, 255, 255, 0.6);
+}
+.opacity-50 {
+  opacity: 0.5;
 }
 </style>
